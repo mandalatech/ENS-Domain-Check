@@ -1,0 +1,15 @@
+{
+    "files.autoSave": "onFocusChange",
+    "python.linting.pylintPath": ".venv/bin/pylint",
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "python.linting.lintOnSave": true,
+    "python.linting.pylintArgs": [
+        "--load-plugins",
+    ],
+    "python.linting.pycodestyleEnabled": false,
+    "python.defaultInterpreterPath": ".venv/bin/python",
+    "editor.formatOnSave": true,
+    "python.formatting.provider": "yapf",
+    "breadcrumbs.enabled": true
+}
