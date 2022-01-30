@@ -1,36 +1,39 @@
 import gc
-from os import stat
-import bs4
-import requests
-from requests_html import HTMLSession
+import time
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 class Processor:
 
     def __init__(self, i):
         self.index = i
-        self.url = "https://app.ens.domains/search/{}"
-        self.session = HTMLSession()
-        print(f"{self.index} ready.")
-
-    def __str__(self):
-        print(f'Worker {self.index}')
+        options = webdriver.ChromeOptions()
+        # options.add_experimental_option("detach", True)
+        options.add_argument("--disable-gpu")
+        options.add_argument('--headless')
+        print(f'{self.index} starting chrome . . .')
+        self.driver = webdriver.Chrome(options=options)
+        self.url = 'https://app.ens.domains/search/{}'
+        print(f'{self.index} Chrome ready.')
 
     def process(self, name):
-        self.url = 'https://google.com/search?q=9780747532743&hl=en'
         query = self.url.format(name)
-        res = self.session.get(query)
-        res.html.render()
-        status = res.html.find('div')
-        for s in status:
-            print(s.text)
-        return ({'status': True}, self)
-        # if res.status_code == 200:
-        #     soup = bs4.BeautifulSoup(res.text, features='html.parser')
-        #     div = soup.find_all("div", {"class": "css-0 e1736otp5"})
-        #     for d in div:
-        #         print(d.text)
-        #     response = {'status': True, 'name': name, 'res': True}
-        # else:
-        #     response = {'status': False, 'response': res.status_code}
-        # return (response, self)
+        self.driver.get(query)
+        delay = 10
+        try:
+            elements = WebDriverWait(self.driver, delay).until(
+                EC.presence_of_element_located((By.CLASS_NAME, 'css-0')))
+            result = (elements.text)
+        except Exception as exp:
+            result = "Error"
+        res = {'name': name, 'result': result}
+        return (res, self)
+
+    def __del__(self):
+        print(f'{self.index} cleaning up . . . ')
+        self.driver.close()
+        gc.collect()
